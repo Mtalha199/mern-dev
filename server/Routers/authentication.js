@@ -1,6 +1,7 @@
 const express=require('express');
 const User=require('../Models/userModel')
 const bycrypt=require('bcryptjs')
+const jsonwebtoken=require('jsonwebtoken')
 const router=express.Router();
 
 
@@ -38,6 +39,7 @@ const router=express.Router();
             return res.status(406).send("All Field are Required")
         }
         const aridnoExist=await User.findOne({aridno})
+        // console.log(aridnoExist[0].aridno)
        
         if(!aridnoExist)
         {
@@ -47,7 +49,8 @@ const router=express.Router();
             const matchpassword=await bycrypt.compare(password,aridnoExist.password) 
             if(matchpassword)
             {
-                return res.send("User login Successfully")
+                const token=jsonwebtoken.sign({_id:aridnoExist.id},'talha199')
+                return res.send({token})
             }
             else
             {
@@ -56,5 +59,6 @@ const router=express.Router();
             
         }
     })
+    //Data sended to git
 
 module.exports=router;
