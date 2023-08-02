@@ -1,64 +1,81 @@
 const express=require('express');
-const User=require('../Models/userModel')
-const bycrypt=require('bcryptjs')
-const jsonwebtoken=require('jsonwebtoken')
+const registrationController= require("../Controllers/registrationController");
+const forgotController=require("../Controllers/forgotController")
+const postController=require("../Controllers/postController")
+const friendController=require("../Controllers/friendController")
+const PagesController=require("../Controllers/PagesController")
+const libraryController=require("../Controllers/libraryController")
+
 const router=express.Router();
 
+                    
+    router.post('/signup',registrationController.signup)
 
-    router.post('/signup',async(req,res)=>{
-        try{    
-            
-            const {aridno ,cnic ,name , fathername ,phoneno , password}=req.body;
-            if(!aridno || !cnic ||!name ||!fathername ||!phoneno ||!password)
-            {
-               return res.status(406).send("ALL field are required")
-            }
-           const userExist= await User.findOne({aridno:aridno})
-           if(userExist)
-           {
-             return res.status(400).send("User already axist")
-           }
+    router.post("/login",registrationController.login)
 
-            const bypass=await bycrypt.hash(password,10)
+    router.post("/checkUser",registrationController.checkUsers)
 
-        const user=new User({aridno ,cnic ,name , fathername ,phoneno , password:bypass})
-       await user.save();
-       res.status(201).json({message:"User added successfully "})
+    router.post("/checkEmail", forgotController.checkEmail)
 
-        }
-        catch(e){
-            res.send(e)
-        }
-    })
+    router.post("/checkOtp",forgotController.checkOtp)
+
+    router.post("/updateNewPassword",forgotController.updateNewPassword)
+
+    router.post("/post/createpost",postController.createPost)
+
+    router.post("/post/showPosts",postController.showData )
+
+    router.post("/post/deletePost",postController.deletePost)
+
+    router.put("/profileImage/:id",postController.profileImage)
+
+    router.put("/coverImage/:id",postController.coverImage)
+
+    router.get("/allPosts/:id",postController.showPostsInDashboard)
+
+    router.get("/userProfile/:id",postController.showProfileOnDashboardClick)
+
+    router.put("/likeUser",postController.likeEntry)
+
+    router.post("/comment/userComment",postController.postComments)
+
+    router.get("/comment/postOfComment/:id",postController.showCommentOfPost)
+
+    router.get("/friends/:id",friendController.friends)
+
+    router.post("/friends/friendRequest",friendController.sendFriendRequest)
+
+    router.get("/requestedFriend/:id",friendController.showRequestedData)
+
+    router.post("/responseRequest",friendController.responseRequest)
+
+    router.get("/allFriends/:id",friendController.allFriends)
+
+    router.post("/createPage",PagesController.createPage)
+
+    router.get("/allPages",PagesController.allPages)
+
+    router.post("/deletePage/:id",PagesController.deletePage)
+
+    router.get("/page/:id",PagesController.specificPage)
+
+    router.post("/likePage",PagesController.userLiked)
+
+    router.get("/allpages/:id",PagesController.showPagesData)
+
+    router.post("/uploadBook",libraryController.uploadBook)
+
+    router.get("/showBooks",libraryController.showbook)
+    
+    router.put("/deleteBook/:id",libraryController.deleteBook)
+    
+    router.get("/search",libraryController.searchId)
 
 
-    router.post("/login",async(req,res)=>{
-        const {aridno,password}=req.body
+  
+    
 
-        if(!aridno || !password){
-            return res.status(406).send("All Field are Required")
-        }
-        const aridnoExist=await User.findOne({aridno})
-        // console.log(aridnoExist[0].aridno)
-       
-        if(!aridnoExist)
-        {
-            return res.status(403).send("Invalid Arid no OR Password")
-        }
-        else{
-            const matchpassword=await bycrypt.compare(password,aridnoExist.password) 
-            if(matchpassword)
-            {
-                const token=jsonwebtoken.sign({_id:aridnoExist.id},'talha199')
-                return res.send({token})
-            }
-            else
-            {
-                return res.send("Invalid Arid no OR Password")
-            }
-            
-        }
-    })
-    //Data sended to git
+
+
 
 module.exports=router;
